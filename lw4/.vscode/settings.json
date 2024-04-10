@@ -1,0 +1,9 @@
+{
+	"maven.terminal.customEnv": [
+		{
+			"environmentVariable": "JAVA_HOME",
+			"value": "C:\\Programs\\Programming\\Java" // set your own path to java, if JAVA_HOME not specified
+		}
+	],
+	"java.configuration.updateBuildConfiguration": "automatic",
+}

@@ -1,0 +1,11 @@
+{
+	"configurations": [
+		{
+			"type": "java",
+			"name": "JavaFX App",
+			"request": "launch",
+			"mainClass": "com.example.CatManagementApp",
+			"vmArgs": "--module-path C:/Programs/Programming/Java/javafx-sdk-22/lib --add-modules javafx.controls,javafx.fxml"
+		}
+	]
+}
