@@ -29,22 +29,12 @@ public class CatManagementApp {
     public void start() throws SQLException {
     }
 
-    // Метод для вывода всех котов с их породами
-    public void displayAllCats() throws SQLException {
+    // Метод для получения всех котов с породами
+    public ResultSet getAllCatsWithBreeds() throws SQLException {
         String sql = "SELECT cats.cat_id, cats.name, cats.age, breeds.breed_name, breeds.description " +
                 "FROM cats JOIN breeds ON cats.breed_id = breeds.breed_id";
-        try (Statement statement = connection.createStatement();
-                ResultSet resultSet = statement.executeQuery(sql)) {
-            while (resultSet.next()) {
-                int catId = resultSet.getInt("cat_id");
-                String name = resultSet.getString("name");
-                int age = resultSet.getInt("age");
-                String breedName = resultSet.getString("breed_name");
-                String description = resultSet.getString("description");
-                System.out.printf("Cat ID: %d, Name: %s, Age: %d, Breed: %s (%s)\n",
-                        catId, name, age, breedName, description);
-            }
-        }
+        Statement statement = connection.createStatement();
+        return statement.executeQuery(sql);
     }
 
     // Метод для добавления новой породы
@@ -55,6 +45,27 @@ public class CatManagementApp {
             preparedStatement.setString(2, description);
             preparedStatement.executeUpdate();
             System.out.println("New breed added successfully.");
+        }
+    }
+
+    // Метод для получения всех пород
+    public ResultSet getAllBreeds() throws SQLException {
+        String sql = "SELECT * FROM breeds";
+        Statement statement = connection.createStatement();
+        return statement.executeQuery(sql);
+    }
+
+    // Метод для получения идентификатора породы по имени
+    public int getBreedIdByName(String breedName) throws SQLException {
+        String sql = "SELECT breed_id FROM breeds WHERE breed_name = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, breedName);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("breed_id");
+            } else {
+                throw new SQLException("Breed not found: " + breedName);
+            }
         }
     }
 

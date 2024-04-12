@@ -5,79 +5,77 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class CatManagementUI extends Application {
     private static final String DB_URL = "jdbc:sqlite:./cats.db";
     private Connection connection;
+    private CatManagementApp catManagementApp;
+    private ComboBox<String> breedComboBox;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         // Установка соединения с базой данных
         connection = DriverManager.getConnection(DB_URL);
+        catManagementApp = new CatManagementApp(connection);
 
         primaryStage.setTitle("Cat Management System");
 
-        GridPane grid = new GridPane();
-        grid.setPadding(new Insets(20, 20, 20, 20));
-        grid.setVgap(10);
-        grid.setHgap(10);
+        VBox vbox = new VBox(10);
+        vbox.setPadding(new Insets(20));
 
-        // Labels
+        ListView<String> catListView = new ListView<>();
+
+        // Load breeds from database and populate ComboBox
+        breedComboBox = new ComboBox<>();
+        loadBreedsIntoComboBox();
+
+        // Labels and TextFields for adding new cat
         Label nameLabel = new Label("Name:");
-        Label ageLabel = new Label("Age:");
-        Label breedIdLabel = new Label("Breed ID:");
-
-        // Text fields
         TextField nameField = new TextField();
+        Label ageLabel = new Label("Age:");
         TextField ageField = new TextField();
-        TextField breedIdField = new TextField();
 
-        // Buttons
+        // Add Cat Button
         Button addButton = new Button("Add Cat");
-        Button displayButton = new Button("Display Cats");
-
-        // Add Cat Button Click Event
         addButton.setOnAction(event -> {
             String name = nameField.getText();
             int age = Integer.parseInt(ageField.getText());
-            int breedId = Integer.parseInt(breedIdField.getText());
+            String selectedBreed = breedComboBox.getValue();
             try {
-                CatManagementApp app = new CatManagementApp(connection);
-                app.addCat(name, age, breedId);
-                clearFields(nameField, ageField, breedIdField);
+                int breedId = catManagementApp.getBreedIdByName(selectedBreed);
+                catManagementApp.addCat(name, age, breedId);
                 displayAlert("Cat added successfully!", Alert.AlertType.INFORMATION);
+                refreshCatListView(catListView); // Refresh ListView after adding a cat
             } catch (SQLException e) {
                 displayAlert("Error adding cat: " + e.getMessage(), Alert.AlertType.ERROR);
             }
         });
 
-        // Display Cats Button Click Event
+        // Display Cats Button
+        Button displayButton = new Button("Display Cats");
         displayButton.setOnAction(event -> {
-            try {
-                CatManagementApp app = new CatManagementApp(connection);
-                app.displayAllCats();
-            } catch (SQLException e) {
-                displayAlert("Error displaying cats: " + e.getMessage(), Alert.AlertType.ERROR);
-            }
+            refreshCatListView(catListView);
         });
 
-        // Add components to grid
-        grid.add(nameLabel, 0, 0);
-        grid.add(nameField, 1, 0);
-        grid.add(ageLabel, 0, 1);
-        grid.add(ageField, 1, 1);
-        grid.add(breedIdLabel, 0, 2);
-        grid.add(breedIdField, 1, 2);
-        grid.add(addButton, 0, 3);
-        grid.add(displayButton, 1, 3);
+        // Add components to VBox
+        vbox.getChildren().addAll(
+                catListView,
+                new Separator(),
+                nameLabel, nameField,
+                ageLabel, ageField,
+                new Label("Breed:"), breedComboBox,
+                addButton, displayButton
+        );
 
         // Set scene
-        Scene scene = new Scene(grid, 400, 200);
+        Scene scene = new Scene(vbox, 500, 400);
         primaryStage.setScene(scene);
         primaryStage.show();
 
@@ -93,9 +91,16 @@ public class CatManagementUI extends Application {
         });
     }
 
-    private void clearFields(TextField... fields) {
-        for (TextField field : fields) {
-            field.clear();
+    private void loadBreedsIntoComboBox() {
+        try {
+            ResultSet resultSet = catManagementApp.getAllBreeds();
+            breedComboBox.getItems().clear();
+            while (resultSet.next()) {
+                String breedName = resultSet.getString("breed_name");
+                breedComboBox.getItems().add(breedName);
+            }
+        } catch (SQLException e) {
+            displayAlert("Error loading breeds: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
@@ -103,6 +108,25 @@ public class CatManagementUI extends Application {
         Alert alert = new Alert(alertType);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private void refreshCatListView(ListView<String> catListView) {
+        try {
+            ResultSet resultSet = catManagementApp.getAllCatsWithBreeds();
+            catListView.getItems().clear();
+            while (resultSet.next()) {
+                int catId = resultSet.getInt("cat_id");
+                String name = resultSet.getString("name");
+                int age = resultSet.getInt("age");
+                String breedName = resultSet.getString("breed_name");
+                String description = resultSet.getString("description");
+                String catInfo = String.format("Cat ID: %d, Name: %s, Age: %d, Breed: %s (%s)",
+                        catId, name, age, breedName, description);
+                catListView.getItems().add(catInfo);
+            }
+        } catch (SQLException e) {
+            displayAlert("Error displaying cats: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
     }
 
     public static void main(String[] args) {
