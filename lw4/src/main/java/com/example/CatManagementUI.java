@@ -17,6 +17,8 @@ public class CatManagementUI extends Application {
     private Connection connection;
     private CatManagementApp catManagementApp;
     private ComboBox<String> breedComboBox;
+    private ComboBox<Integer> catIdComboBox;
+    private ListView<String> catListView;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -29,11 +31,15 @@ public class CatManagementUI extends Application {
         VBox vbox = new VBox(10);
         vbox.setPadding(new Insets(20));
 
-        ListView<String> catListView = new ListView<>();
+        catListView = new ListView<>();
 
         // Load breeds from database and populate ComboBox
         breedComboBox = new ComboBox<>();
         loadBreedsIntoComboBox();
+
+        // Load cat IDs from database and populate ComboBox
+        catIdComboBox = new ComboBox<>();
+        loadCatIdsIntoComboBox();
 
         // Labels and TextFields for adding new cat
         Label nameLabel = new Label("Name:");
@@ -72,8 +78,37 @@ public class CatManagementUI extends Application {
                 catManagementApp.addCat(name, age, breedId);
                 displayAlert("Cat added successfully!", Alert.AlertType.INFORMATION);
                 refreshCatListView(catListView); // Refresh ListView after adding a cat
+                refreshCatIdComboBox(); // Refresh ComboBox after adding a cat
             } catch (SQLException e) {
                 displayAlert("Error adding cat: " + e.getMessage(), Alert.AlertType.ERROR);
+            }
+        });
+
+        // Delete Cat section
+        Button deleteCatButton = new Button("Delete Cat");
+        deleteCatButton.setOnAction(event -> {
+            int catId = catIdComboBox.getValue();
+            try {
+                catManagementApp.deleteCat(catId);
+                displayAlert("Cat deleted successfully!", Alert.AlertType.INFORMATION);
+                refreshCatIdComboBox(); // Refresh ComboBox after deleting a cat
+            } catch (SQLException e) {
+                displayAlert("Error deleting cat: " + e.getMessage(), Alert.AlertType.ERROR);
+            }
+        });
+
+        // Delete Breed section
+        Button deleteBreedButton = new Button("Delete Breed");
+        deleteBreedButton.setOnAction(event -> {
+            String selectedBreed = breedComboBox.getValue();
+            try {
+                int breedId = catManagementApp.getBreedIdByName(selectedBreed);
+                catManagementApp.deleteBreed(breedId);
+                displayAlert("Breed deleted successfully!", Alert.AlertType.INFORMATION);
+                loadBreedsIntoComboBox(); // Refresh ComboBox after deleting a breed
+                refreshCatIdComboBox(); // Refresh ComboBox after deleting a breed (to update cat list)
+            } catch (SQLException e) {
+                displayAlert("Error deleting breed: " + e.getMessage(), Alert.AlertType.ERROR);
             }
         });
 
@@ -95,7 +130,15 @@ public class CatManagementUI extends Application {
                 addBreedLabel,
                 breedNameLabel, breedNameField,
                 breedDescriptionLabel, breedDescriptionField,
-                addBreedButton
+                addBreedButton,
+                new Separator(),
+                new Label("Select Cat ID to Delete:"),
+                catIdComboBox,
+                deleteCatButton,
+                new Separator(),
+                new Label("Select Breed to Delete (and all related cats):"),
+                // breedComboBox,
+                deleteBreedButton
         );
 
         // Set scene
@@ -123,9 +166,24 @@ public class CatManagementUI extends Application {
                 String breedName = resultSet.getString("breed_name");
                 breedComboBox.getItems().add(breedName);
             }
+            // breedComboBox.getItems().addAll(catManagementApp.getAllBreedNames());
         } catch (SQLException e) {
             displayAlert("Error loading breeds: " + e.getMessage(), Alert.AlertType.ERROR);
         }
+    }
+
+    private void loadCatIdsIntoComboBox() {
+        try {
+            catIdComboBox.getItems().clear();
+            catIdComboBox.getItems().addAll(catManagementApp.getAllCatIds());
+        } catch (SQLException e) {
+            displayAlert("Error loading cat IDs: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    private void refreshCatIdComboBox() {
+        loadCatIdsIntoComboBox();
+        refreshCatListView(catListView);
     }
 
     private void refreshCatListView(ListView<String> catListView) {
