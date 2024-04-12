@@ -6,4 +6,13 @@
 		}
 	],
 	"java.configuration.updateBuildConfiguration": "automatic",
+	"sqltools.connections": [
+		{
+			"previewLimit": 50,
+			"driver": "SQLite",
+			"database": "${workspaceFolder:lw4}/cats.db",
+			"name": "java-lw4"
+		}
+	],
+	"sqltools.useNodeRuntime": true,
 }

@@ -18,11 +18,17 @@
 
         <dependency>
             <groupId>org.openjfx</groupId>
-            <artifactId>javafx</artifactId>
-            <version>23-ea+3</version>
+            <artifactId>javafx-controls</artifactId>
+            <version>22</version>
             <type>pom</type>
         </dependency>
 
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>22</version>
+            <type>pom</type>
+        </dependency>
 
         <dependency>
             <groupId>org.xerial</groupId>

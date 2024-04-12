@@ -1,87 +1,32 @@
 package com.example;
 
 import java.sql.*;
-import java.util.Scanner;
 
 public class CatManagementApp {
-    private static final String DB_URL = "jdbc:sqlite:./cats.db";
-
-    public static void main(String[] args) {
-        try (Connection connection = DriverManager.getConnection(DB_URL);
-                Statement statement = connection.createStatement()) {
-
-            // Создание таблицы cats
-            statement.execute("CREATE TABLE IF NOT EXISTS cats (" +
-                    "cat_id INTEGER PRIMARY KEY," +
-                    "name TEXT NOT NULL," +
-                    "age INTEGER," +
-                    "breed_id INTEGER," +
-                    "FOREIGN KEY (breed_id) REFERENCES breeds(breed_id))");
-
-            // Создание таблицы breeds
-            statement.execute("CREATE TABLE IF NOT EXISTS breeds (" +
-                    "breed_id INTEGER PRIMARY KEY," +
-                    "breed_name TEXT NOT NULL," +
-                    "description TEXT)");
-
-            // Создаем объект приложения и запускаем его
-            CatManagementApp app = new CatManagementApp(connection);
-            app.start();
-        } catch (SQLException e) {
-            System.err.println("Error: " + e.getMessage());
-        }
-    }
-
     private final Connection connection;
 
-    public CatManagementApp(Connection connection) {
+    public CatManagementApp(Connection connection) throws SQLException {
         this.connection = connection;
-    }
 
-    private int getUserInput(String message) {
-        System.out.print(message);
-        try (Scanner scanner = new Scanner(System.in)) {
-            return scanner.nextInt();
-        }
+        Statement statement = connection.createStatement();
+
+        // Создание таблицы cats
+        statement.execute("CREATE TABLE IF NOT EXISTS cats (" +
+                "cat_id INTEGER PRIMARY KEY," +
+                "name TEXT NOT NULL," +
+                "age INTEGER," +
+                "breed_id INTEGER," +
+                "FOREIGN KEY (breed_id) REFERENCES breeds(breed_id))");
+
+        // Создание таблицы breeds
+        statement.execute("CREATE TABLE IF NOT EXISTS breeds (" +
+                "breed_id INTEGER PRIMARY KEY," +
+                "breed_name TEXT NOT NULL," +
+                "description TEXT)");
+
     }
 
     public void start() throws SQLException {
-        boolean running = true;
-        while (running) {
-            System.out.println("Выберите действие:");
-            System.out.println("1. Вывести всех котов с породами");
-            System.out.println("2. Добавить новую породу");
-            System.out.println("3. Добавить нового кота");
-            System.out.println("4. Удалить породу");
-            System.out.println("5. Удалить кота");
-            System.out.println("0. Выйти из программы");
-
-            int choice = getUserInput("Введите номер действия: ");
-
-            switch (choice) {
-                case 1:
-                    displayAllCats();
-                    break;
-                case 2:
-                    addBreed(null, null);
-                    break;
-                case 3:
-                    addCat(null, choice, choice);
-                    break;
-                case 4:
-                    deleteBreed(choice);
-                    break;
-                case 5:
-                    deleteCat(choice);
-                    break;
-                case 0:
-                    running = false;
-                    break;
-                default:
-                    System.out.println("Некорректный выбор. Попробуйте снова.");
-                    break;
-            }
-        }
     }
 
     // Метод для вывода всех котов с их породами
