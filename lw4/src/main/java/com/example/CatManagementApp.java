@@ -37,17 +37,6 @@ public class CatManagementApp {
         return statement.executeQuery(sql);
     }
 
-    // Метод для добавления новой породы
-    public void addBreed(String breedName, String description) throws SQLException {
-        String sql = "INSERT INTO breeds (breed_name, description) VALUES (?, ?)";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, breedName);
-            preparedStatement.setString(2, description);
-            preparedStatement.executeUpdate();
-            System.out.println("New breed added successfully.");
-        }
-    }
-
     // Метод для получения всех пород
     public ResultSet getAllBreeds() throws SQLException {
         String sql = "SELECT * FROM breeds";
@@ -67,6 +56,41 @@ public class CatManagementApp {
                 throw new SQLException("Breed not found: " + breedName);
             }
         }
+    }
+
+    // Метод для добавления новой породы
+    public void addBreed(String breedName, String description) throws SQLException {
+        String sql = "INSERT INTO breeds (breed_name, description) VALUES (?, ?)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, breedName);
+            preparedStatement.setString(2, description);
+            preparedStatement.executeUpdate();
+            System.out.println("New breed added successfully.");
+        }
+    }
+
+    // Метод для получения списка всех названий пород
+    public String[] getAllBreedNames() throws SQLException {
+        String sql = "SELECT breed_name FROM breeds";
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+
+        // Count the number of breeds
+        int rowCount = 0;
+        while (resultSet.next()) {
+            rowCount++;
+        }
+
+        // Store breed names in an array
+        String[] breedNames = new String[rowCount];
+        resultSet.beforeFirst(); // Reset cursor to before the first row
+        int index = 0;
+        while (resultSet.next()) {
+            breedNames[index] = resultSet.getString("breed_name");
+            index++;
+        }
+
+        return breedNames;
     }
 
     // Метод для добавления нового кота

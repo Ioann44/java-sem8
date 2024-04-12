@@ -4,7 +4,6 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -42,7 +41,27 @@ public class CatManagementUI extends Application {
         Label ageLabel = new Label("Age:");
         TextField ageField = new TextField();
 
-        // Add Cat Button
+        // Add Breed section
+        Label addBreedLabel = new Label("Add New Breed");
+        Label breedNameLabel = new Label("Breed Name:");
+        TextField breedNameField = new TextField();
+        Label breedDescriptionLabel = new Label("Description:");
+        TextField breedDescriptionField = new TextField();
+
+        Button addBreedButton = new Button("Add Breed");
+        addBreedButton.setOnAction(event -> {
+            String breedName = breedNameField.getText();
+            String description = breedDescriptionField.getText();
+            try {
+                catManagementApp.addBreed(breedName, description);
+                displayAlert("Breed added successfully!", Alert.AlertType.INFORMATION);
+                loadBreedsIntoComboBox(); // Refresh ComboBox after adding a breed
+            } catch (SQLException e) {
+                displayAlert("Error adding breed: " + e.getMessage(), Alert.AlertType.ERROR);
+            }
+        });
+
+        // Add Cat section
         Button addButton = new Button("Add Cat");
         addButton.setOnAction(event -> {
             String name = nameField.getText();
@@ -71,11 +90,16 @@ public class CatManagementUI extends Application {
                 nameLabel, nameField,
                 ageLabel, ageField,
                 new Label("Breed:"), breedComboBox,
-                addButton, displayButton
+                addButton, displayButton,
+                new Separator(),
+                addBreedLabel,
+                breedNameLabel, breedNameField,
+                breedDescriptionLabel, breedDescriptionField,
+                addBreedButton
         );
 
         // Set scene
-        Scene scene = new Scene(vbox, 500, 400);
+        Scene scene = new Scene(vbox, 500, 600);
         primaryStage.setScene(scene);
         primaryStage.show();
 
@@ -104,12 +128,6 @@ public class CatManagementUI extends Application {
         }
     }
 
-    private void displayAlert(String message, Alert.AlertType alertType) {
-        Alert alert = new Alert(alertType);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
     private void refreshCatListView(ListView<String> catListView) {
         try {
             ResultSet resultSet = catManagementApp.getAllCatsWithBreeds();
@@ -127,6 +145,12 @@ public class CatManagementUI extends Application {
         } catch (SQLException e) {
             displayAlert("Error displaying cats: " + e.getMessage(), Alert.AlertType.ERROR);
         }
+    }
+
+    private void displayAlert(String message, Alert.AlertType alertType) {
+        Alert alert = new Alert(alertType);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     public static void main(String[] args) {
