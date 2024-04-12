@@ -16,7 +16,7 @@ public class CatManagementUI extends Application {
     private static final String DB_URL = "jdbc:sqlite:./cats.db";
     private Connection connection;
     private CatManagementApp catManagementApp;
-    private ComboBox<String> breedComboBox;
+    private ComboBox<String> breedComboBox, breedComboBox2;
     private ComboBox<Integer> catIdComboBox;
     private ListView<String> catListView;
 
@@ -35,8 +35,9 @@ public class CatManagementUI extends Application {
 
         // Load breeds from database and populate ComboBox
         breedComboBox = new ComboBox<>();
+        breedComboBox2 = new ComboBox<>();
         loadBreedsIntoComboBox();
-
+        
         // Load cat IDs from database and populate ComboBox
         catIdComboBox = new ComboBox<>();
         loadCatIdsIntoComboBox();
@@ -100,7 +101,7 @@ public class CatManagementUI extends Application {
         // Delete Breed section
         Button deleteBreedButton = new Button("Delete Breed");
         deleteBreedButton.setOnAction(event -> {
-            String selectedBreed = breedComboBox.getValue();
+            String selectedBreed = breedComboBox2.getValue();
             try {
                 int breedId = catManagementApp.getBreedIdByName(selectedBreed);
                 catManagementApp.deleteBreed(breedId);
@@ -137,7 +138,7 @@ public class CatManagementUI extends Application {
                 deleteCatButton,
                 new Separator(),
                 new Label("Select Breed to Delete (and all related cats):"),
-                // breedComboBox,
+                breedComboBox2,
                 deleteBreedButton
         );
 
@@ -162,11 +163,13 @@ public class CatManagementUI extends Application {
         try {
             ResultSet resultSet = catManagementApp.getAllBreeds();
             breedComboBox.getItems().clear();
+            breedComboBox2.getItems().clear();
             while (resultSet.next()) {
                 String breedName = resultSet.getString("breed_name");
                 breedComboBox.getItems().add(breedName);
+                breedComboBox2.getItems().add(breedName);
             }
-            // breedComboBox.getItems().addAll(catManagementApp.getAllBreedNames());
+            // breedComboBox2.getItems().addAll(catManagementApp.getAllBreedNames());
         } catch (SQLException e) {
             displayAlert("Error loading breeds: " + e.getMessage(), Alert.AlertType.ERROR);
         }

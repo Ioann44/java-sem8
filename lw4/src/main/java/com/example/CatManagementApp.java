@@ -119,27 +119,29 @@ public class CatManagementApp {
 
     // MARK: Delete breed
     public void deleteBreed(int breedId) throws SQLException {
-        // Check for associated cats
-        String checkSql = "SELECT * FROM cats WHERE breed_id = ?";
-        try (PreparedStatement checkStatement = connection.prepareStatement(checkSql)) {
-            checkStatement.setInt(1, breedId);
-            ResultSet resultSet = checkStatement.executeQuery();
-            if (resultSet.next()) {
-                System.out.println("Cannot delete breed with existing cats.");
-                return;
-            }
+        // Delete associated cats
+        String deleteCatsSql = "DELETE FROM cats WHERE breed_id = ?";
+        try (PreparedStatement deleteCatsStatement = connection.prepareStatement(deleteCatsSql)) {
+            deleteCatsStatement.setInt(1, breedId);
+            int catsDeleted = deleteCatsStatement.executeUpdate();
+            System.out.println(catsDeleted + " cats deleted for breed ID: " + breedId);
+        } catch (SQLException e) {
+            System.out.println("Error deleting cats: " + e.getMessage());
+            return;
         }
 
         // Delete breed
-        String deleteSql = "DELETE FROM breeds WHERE breed_id = ?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(deleteSql)) {
-            preparedStatement.setInt(1, breedId);
-            int rowsAffected = preparedStatement.executeUpdate();
+        String deleteBreedSql = "DELETE FROM breeds WHERE breed_id = ?";
+        try (PreparedStatement deleteBreedStatement = connection.prepareStatement(deleteBreedSql)) {
+            deleteBreedStatement.setInt(1, breedId);
+            int rowsAffected = deleteBreedStatement.executeUpdate();
             if (rowsAffected > 0) {
                 System.out.println("Breed deleted successfully.");
             } else {
                 System.out.println("Breed not found.");
             }
+        } catch (SQLException e) {
+            System.out.println("Error deleting breed: " + e.getMessage());
         }
     }
 
