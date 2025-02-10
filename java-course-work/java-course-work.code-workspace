@@ -1,0 +1,28 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "backend"
+		},
+		{
+			"path": "mosaic-app"
+		}
+	],
+	"settings": {
+		"sqltools.connections": [
+			{
+				"previewLimit": 50,
+				"server": "localhost",
+				"port": 5501,
+				"driver": "PostgreSQL",
+				"name": "java-db",
+				"database": "database",
+				"username": "user",
+				"password": "L7fdfGfh0k9Ck07y81"
+			}
+		],
+		"java.configuration.updateBuildConfiguration": "interactive"
+	}
+}

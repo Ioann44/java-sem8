@@ -1,0 +1,8 @@
+com\example\RecordServlet.class
+com\example\utils\ImageProcessor.class
+com\example\utils\MosaicRequest.class
+com\example\mosaic\Mosaic.class
+com\example\utils\DatabaseConnector.class
+com\example\MosaicServlet.class
+com\example\mosaic\MosaicDAO.class
+com\example\utils\PixelMatrix.class

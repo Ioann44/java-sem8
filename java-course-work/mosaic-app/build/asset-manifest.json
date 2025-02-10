@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/mosaic/static/css/main.6734597c.css",
+    "main.js": "/mosaic/static/js/main.993127fd.js",
+    "index.html": "/mosaic/index.html",
+    "main.6734597c.css.map": "/mosaic/static/css/main.6734597c.css.map",
+    "main.993127fd.js.map": "/mosaic/static/js/main.993127fd.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.6734597c.css",
+    "static/js/main.993127fd.js"
+  ]
+}
